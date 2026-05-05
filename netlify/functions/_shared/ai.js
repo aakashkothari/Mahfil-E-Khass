@@ -1,6 +1,7 @@
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 const GEMINI_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+const GROQ_MODEL = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
 
 const TRANSLATION_PROMPT =
   "You are an expert Urdu/Hindi translator. The user will provide text written in Roman script (Hinglish/Roman Urdu). Return ONLY the Devanagari Hindi translation. No explanation. Preserve poetic tone.";
@@ -19,7 +20,7 @@ async function groqCompletion(systemPrompt, text) {
       Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
     },
     body: JSON.stringify({
-      model: "llama3-70b-8192",
+      model: GROQ_MODEL,
       temperature: 0.3,
       messages: [
         { role: "system", content: systemPrompt },
