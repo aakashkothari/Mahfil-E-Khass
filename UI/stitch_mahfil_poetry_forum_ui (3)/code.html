@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#41424f",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "on-tertiary-fixed-variant": "#454653",
+                        "tertiary-container": "#585967",
+                        "on-secondary-fixed": "#2a1700",
+                        "surface-container-low": "#f4f3f1",
+                        "surface": "#faf9f6",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#e2e1f2",
+                        "primary-fixed": "#e3dfff",
+                        "surface-variant": "#e3e2e0",
+                        "on-surface-variant": "#474553",
+                        "on-primary-fixed": "#140067",
+                        "outline": "#787584",
+                        "surface-container-highest": "#e3e2e0",
+                        "surface-container-lowest": "#ffffff",
+                        "error": "#ba1a1a",
+                        "primary": "#3b309e",
+                        "on-tertiary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "on-surface": "#1a1c1a",
+                        "on-primary": "#ffffff",
+                        "surface-dim": "#dbdad7",
+                        "inverse-on-surface": "#f2f1ee",
+                        "on-secondary-container": "#6b4200",
+                        "inverse-surface": "#2f312f",
+                        "on-tertiary-container": "#d1d0e1",
+                        "tertiary-fixed-dim": "#c5c5d5",
+                        "secondary": "#855400",
+                        "on-secondary": "#ffffff",
+                        "surface-container": "#efeeeb",
+                        "surface-tint": "#584fbc",
+                        "primary-fixed-dim": "#c5c0ff",
+                        "background": "#faf9f6",
+                        "secondary-fixed-dim": "#ffb95d",
+                        "on-primary-fixed-variant": "#3f35a3",
+                        "on-tertiary-fixed": "#191b26",
+                        "surface-container-high": "#e9e8e5",
+                        "secondary-fixed": "#ffddb7",
+                        "secondary-container": "#fcaa33",
+                        "outline-variant": "#c8c4d5",
+                        "inverse-primary": "#c5c0ff",
+                        "on-background": "#1a1c1a",
+                        "on-primary-container": "#d1ccff",
+                        "surface-bright": "#faf9f6",
+                        "primary-container": "#534ab7"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "base": "8px",
+                        "stack-poetry": "32px",
+                        "container-max": "1120px",
+                        "margin-page": "40px"
+                    },
+                    "fontFamily": {
+                        "display-poetry": ["Newsreader"],
+                        "body-poetry": ["Newsreader"],
+                        "ui-header-lg": ["Inter"],
+                        "ui-label-sm": ["Inter"],
+                        "ui-body": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-poetry": ["24px", {"lineHeight": "2.2", "fontWeight": "400"}],
+                        "body-poetry": ["17px", {"lineHeight": "1.9", "fontWeight": "400"}],
+                        "ui-header-lg": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "ui-label-sm": ["13px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "ui-body": ["15px", {"lineHeight": "22px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-tab::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #3b309e;
+        }
+        .verse-block-border {
+            border-left: 2px solid #EF9F27;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-ui-body text-ui-body">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface border-b border-outline-variant/15 fixed top-0 left-0 right-0 z-50">
+<div class="flex justify-between items-center px-margin-page h-16 w-full max-w-container-max mx-auto">
+<div class="flex items-center gap-8">
+<span class="font-display-poetry text-display-poetry text-primary dark:text-primary-fixed cursor-pointer">mahfil ✦</span>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-primary dark:text-primary-fixed font-bold hover:opacity-80 transition-opacity" href="#">Feed</a>
+<a class="text-on-surface-variant dark:text-on-tertiary-container hover:opacity-80 transition-opacity" href="#">Trending</a>
+<a class="text-on-surface-variant dark:text-on-tertiary-container hover:opacity-80 transition-opacity" href="#">Discover</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-primary hover:opacity-80 transition-opacity p-2">search</button>
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center overflow-hidden">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="A professional and artistic headshot of a person in warm, soft studio lighting. The aesthetic is clean and minimalist, matching the light-mode UI with a soft ivory background and subtle shadows. The person has a serene, thoughtful expression suitable for a literary and creative platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAuiAxOjNwR47QSi60nSaDyS1H9RJLStdSt6oiPO-23lpuTMDDzO3Rhw0PEKK2D--Si60wA6SfaNnghrctcSW73ItvK0tD0qOLKrIkLRPHxUxIDfwsyHymO45UIfyN7-0YJ29mY5NvLjSvaB1Nsl_ylhhTJ9mc_t-UnrKduRsALeu5FiH8qENAaclHz3IbuwGaaxbXz4fkJHlAS8l8eiM-rJwbUDs60p4eGE8NR384-MhS84cLRVz-VDldX8piPL2L58aIvW_Twlyl4"/>
+</div>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-12 px-margin-page w-full max-w-container-max mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-10 items-start">
+<!-- Left Sidebar (Profile Info) -->
+<aside class="md:col-span-4 lg:col-span-3 sticky top-24 space-y-8">
+<div class="flex flex-col items-center md:items-start text-center md:text-left">
+<!-- Profile Avatar -->
+<div class="relative mb-6">
+<div class="w-32 h-32 rounded-full bg-gradient-to-br from-primary to-primary-container flex items-center justify-center shadow-lg">
+<span class="text-white text-4xl font-bold font-ui-header-lg">PP</span>
+</div>
+<div class="absolute -bottom-2 -right-2 bg-white p-1 rounded-full border border-outline-variant/15 shadow-sm">
+<div class="bg-gradient-to-r from-secondary to-on-secondary-container text-white text-[10px] px-2 py-1 rounded-full font-bold uppercase tracking-wider border border-white/50">
+                                Ustād
+                            </div>
+</div>
+</div>
+<!-- Identity -->
+<div class="mb-6">
+<h1 class="font-ui-header-lg text-ui-header-lg text-on-surface mb-1">Poet Pen Name</h1>
+<p class="text-on-surface-variant italic font-body-poetry">Master of the Midnight Ghazal</p>
+</div>
+<!-- Stats Row -->
+<div class="grid grid-cols-3 w-full border-y border-outline-variant/15 py-4 mb-6">
+<div class="flex flex-col items-center">
+<span class="font-bold text-on-surface">152</span>
+<span class="text-[11px] text-on-surface-variant uppercase tracking-tighter">Verses</span>
+</div>
+<div class="flex flex-col items-center border-x border-outline-variant/15">
+<span class="font-bold text-on-surface">12.4k</span>
+<span class="text-[11px] text-on-surface-variant uppercase tracking-tighter">Stars</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="font-bold text-on-surface">3.8k</span>
+<span class="text-[11px] text-on-surface-variant uppercase tracking-tighter">Sama'in</span>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex gap-3 w-full mb-8">
+<button class="flex-1 bg-primary text-white py-2.5 rounded-full font-ui-label-sm active:scale-95 transition-all">Follow</button>
+<button class="flex-1 border border-primary text-primary py-2.5 rounded-full font-ui-label-sm active:scale-95 transition-all">Message</button>
+</div>
+<!-- Decorative Diya -->
+<div class="hidden lg:block w-full opacity-40 py-8">
+<img alt="Decorative Diya" class="w-full h-auto rounded-xl grayscale hover:grayscale-0 transition-all duration-700" data-alt="A detailed, macro artistic rendering of a traditional diya oil lamp with a glowing flame. The lighting is nocturnal and atmospheric, casting long, soft shadows against a warm ivory background. Deep indigo and warm gold tones dominate the palette, creating a serene, intellectual, and literary mood that reflects a midnight poetry gathering." src="https://lh3.googleusercontent.com/aida/ADBb0uiyhGdLTL3lPB1VO6qsLfCXBuTy7wX4J9WXX5twJmyIdHQBrRcNs0LhuGR8PUaDzTle6NjdMFEjcLeY4myqJczKoSWxsGl076DsnRQmNkQPfsC1WPU7f4p0xrT9i0OCmdhYz99Ilb1HAOO42WX-LgpalrL2Nui0QyoivteSAgbo0aMU5hhnfdpzzInsWo7nyc6rDA9qU8Gges844FDBRsthG6yFvj7yQoX9eINeXYAnylkLbQJq"/>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<section class="md:col-span-8 lg:col-span-9 space-y-stack-poetry">
+<!-- Tabbed Interface -->
+<nav class="flex border-b border-outline-variant/15 sticky top-16 bg-surface/95 backdrop-blur-sm z-40">
+<button class="px-6 py-4 text-ui-label-sm font-bold text-primary relative active-tab">Shayaris</button>
+<button class="px-6 py-4 text-ui-label-sm text-on-surface-variant hover:text-primary transition-colors">Collections</button>
+<button class="px-6 py-4 text-ui-label-sm text-on-surface-variant hover:text-primary transition-colors">Liked</button>
+</nav>
+<!-- Vertical Feed -->
+<div class="space-y-stack-poetry max-w-[680px]">
+<!-- Post Card 1 -->
+<article class="bg-surface-container-lowest border-[0.5px] border-primary/15 shadow-[0px_4px_20px_rgba(83,74,183,0.06)] rounded-lg p-margin-page group">
+<header class="flex justify-between items-center mb-6">
+<div class="inline-block bg-[#EF9F27]/10 text-[#EF9F27] px-4 py-1 rounded-full text-ui-label-sm font-bold uppercase tracking-widest">
+                                ISHQ
+                            </div>
+<button class="material-symbols-outlined text-on-surface-variant/50 hover:text-primary transition-colors">more_horiz</button>
+</header>
+<div class="verse-block-border pl-6 mb-8">
+<p class="font-display-poetry text-display-poetry text-on-surface whitespace-pre-line">
+                                Hazaron khwahishen aisi ke har khwahish pe dam nikle,
+                                Bohat niklay mere armaan, lekin phir bhi kam nikle.
+                                
+                                Nikalna khuld se aadam ka sunte aaye hain lekin,
+                                Bahut be-abru hokar tere kuche se hum nikle.
+                            </p>
+</div>
+<footer class="flex items-center justify-between border-t border-outline-variant/10 pt-6">
+<div class="flex gap-6">
+<button class="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-all">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+<span class="text-ui-label-sm font-bold">1.2k</span>
+</button>
+<button class="flex items-center gap-2 text-on-surface-variant hover:text-secondary transition-all">
+<span class="material-symbols-outlined text-[20px]">chat_bubble</span>
+<span class="text-ui-label-sm font-bold">84</span>
+</button>
+</div>
+<button class="text-[#EF9F27] font-ui-label-sm hover:opacity-70 transition-all uppercase tracking-widest">Share</button>
+</footer>
+</article>
+<!-- Post Card 2 -->
+<article class="bg-surface-container-lowest border-[0.5px] border-primary/15 shadow-[0px_4px_20px_rgba(83,74,183,0.06)] rounded-lg p-margin-page group">
+<header class="flex justify-between items-center mb-6">
+<div class="inline-block bg-[#534AB7]/10 text-[#534AB7] px-4 py-1 rounded-full text-ui-label-sm font-bold uppercase tracking-widest">
+                                FALSAFA
+                            </div>
+<button class="material-symbols-outlined text-on-surface-variant/50 hover:text-primary transition-colors">more_horiz</button>
+</header>
+<div class="verse-block-border pl-6 mb-8">
+<p class="font-display-poetry text-display-poetry text-on-surface whitespace-pre-line">
+                                Manzil se aage badhkar manzil talash kar,
+                                Mil jaye tujhko darya to samandar talash kar.
+                                
+                                Har sheesha toot jata hai patthar ki chot se,
+                                Patthar hi toot jaye wo sheesha talash kar.
+                            </p>
+</div>
+<footer class="flex items-center justify-between border-t border-outline-variant/10 pt-6">
+<div class="flex gap-6">
+<button class="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-all">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+<span class="text-ui-label-sm font-bold">3.5k</span>
+</button>
+<button class="flex items-center gap-2 text-on-surface-variant hover:text-secondary transition-all">
+<span class="material-symbols-outlined text-[20px]">chat_bubble</span>
+<span class="text-ui-label-sm font-bold">120</span>
+</button>
+</div>
+<button class="text-[#EF9F27] font-ui-label-sm hover:opacity-70 transition-all uppercase tracking-widest">Share</button>
+</footer>
+</article>
+<!-- Utility Section: Top Verses -->
+<div class="lg:hidden mt-12 bg-surface-container p-gutter rounded-xl">
+<h3 class="text-ui-label-sm font-bold uppercase tracking-widest text-primary mb-4">Top Verses</h3>
+<div class="space-y-4">
+<div class="flex items-center gap-4">
+<span class="text-2xl font-display-poetry text-outline-variant/50">01</span>
+<p class="text-ui-body line-clamp-1 italic">"Mohabbat mein nahi hai farq jine aur marne ka..."</p>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-2xl font-display-poetry text-outline-variant/50">02</span>
+<p class="text-ui-body line-clamp-1 italic">"Dil-e-nadaan tujhe hua kya hai..."</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Navigation Bar for Mobile (Hidden on Desktop) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 md:hidden bg-surface/90 backdrop-blur-md border-t border-outline-variant/15 flex justify-around items-center py-base px-gutter shadow-[0px_-4px_20px_rgba(83,74,183,0.06)]">
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-ui-label-sm text-ui-label-sm">Feed</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-tertiary-fixed-variant opacity-60 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">bolt</span>
+<span class="font-ui-label-sm text-ui-label-sm">Trending</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-tertiary-fixed-variant opacity-60 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="font-ui-label-sm text-ui-label-sm">Discover</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-tertiary-fixed-variant opacity-60 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">book_2</span>
+<span class="font-ui-label-sm text-ui-label-sm">Diwan</span>
+</a>
+</nav>
+<!-- FAB (Suppressed on Details/Profile but included for Home context if needed) -->
+</body></html>
