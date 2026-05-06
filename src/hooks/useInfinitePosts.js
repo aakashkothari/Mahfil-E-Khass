@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "../lib/api";
 
-export function useInfinitePosts(endpoint, params = {}) {
+export function useInfinitePosts(endpoint, params = {}, options = {}) {
+  const { enabled = true, reloadKey = "default" } = options;
   const [items, setItems] = useState([]);
   const [cursor, setCursor] = useState(null);
   const [hasMore, setHasMore] = useState(true);
@@ -18,7 +19,11 @@ export function useInfinitePosts(endpoint, params = {}) {
 
   const load = useCallback(
     async ({ reset = false } = {}) => {
-      if ((!hasMoreRef.current && !reset) || loadingRef.current) {
+      if (!enabled) {
+        return;
+      }
+
+      if ((!hasMoreRef.current && !reset) || (!reset && loadingRef.current)) {
         return;
       }
 
@@ -90,13 +95,34 @@ export function useInfinitePosts(endpoint, params = {}) {
           loadingRef.current = false;
           setLoading(false);
           setLoadingMore(false);
+          if (abortRef.current === controller) {
+            abortRef.current = null;
+          }
         }
       }
     },
-    [endpoint, params, paramsKey],
+    [enabled, endpoint, params, paramsKey, reloadKey],
   );
 
   useEffect(() => {
+    if (!enabled) {
+      abortRef.current?.abort();
+      loadingRef.current = false;
+      setItems([]);
+      setCursor(null);
+      setHasMore(true);
+      setLoading(false);
+      setLoadingMore(false);
+      setError("");
+      cursorRef.current = null;
+      hasMoreRef.current = true;
+      return () => {
+        if (observerRef.current) {
+          observerRef.current.disconnect();
+        }
+      };
+    }
+
     load({ reset: true });
     return () => {
       abortRef.current?.abort();
@@ -104,7 +130,7 @@ export function useInfinitePosts(endpoint, params = {}) {
         observerRef.current.disconnect();
       }
     };
-  }, [load]);
+  }, [enabled, load, reloadKey]);
 
   const sentinelRef = useCallback(
     (node) => {

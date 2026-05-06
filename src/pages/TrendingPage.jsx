@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { PostCard } from "../components/posts/PostCard";
 import { LoadingState } from "../components/ui/LoadingState";
 import { SegmentedControl } from "../components/ui/SegmentedControl";
+import { useAuth } from "../contexts/AuthContext";
 import { moodOptions } from "../lib/moods";
 import { useInfinitePosts } from "../hooks/useInfinitePosts";
 
@@ -12,11 +13,16 @@ const TRENDING_WINDOWS = [
 ];
 
 export function TrendingPage() {
+  const { loading: authLoading, user } = useAuth();
   const [window, setWindow] = useState("daily");
   const [mood, setMood] = useState("");
   const params = useMemo(() => ({ window, mood }), [mood, window]);
   const { items, loading, error, sentinelRef, hasMore, loadingMore, setItems } =
-    useInfinitePosts("trending", params);
+    useInfinitePosts("trending", params, {
+      enabled: !authLoading,
+      reloadKey: user?.id ?? "guest",
+    });
+  const pageLoading = authLoading || loading;
 
   return (
     <div className="mx-auto max-w-poetry space-y-8">
@@ -54,7 +60,7 @@ export function TrendingPage() {
       </section>
 
       <div className="space-y-6">
-        {loading ? <LoadingState label="Aaj ka sabse tez nasha nikaala ja raha hai..." /> : null}
+        {pageLoading ? <LoadingState label="Aaj ka sabse tez nasha nikaala ja raha hai..." /> : null}
         {items.map((post, index) => (
           <div key={post.id} className="relative">
             <div className="absolute -left-2 -top-2 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-gold to-gold-soft text-sm font-bold text-slate-950 shadow-lg">

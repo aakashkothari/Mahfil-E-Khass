@@ -4,17 +4,23 @@ import { PostCard } from "../components/posts/PostCard";
 import { EmptyState } from "../components/ui/EmptyState";
 import { LoadingState } from "../components/ui/LoadingState";
 import { SegmentedControl } from "../components/ui/SegmentedControl";
+import { useAuth } from "../contexts/AuthContext";
 import { FEED_SCOPES } from "../lib/constants";
 import { moodOptions } from "../lib/moods";
 import { useInfinitePosts } from "../hooks/useInfinitePosts";
 
 export function FeedPage() {
+  const { loading: authLoading, user } = useAuth();
   const [scope, setScope] = useState("latest");
   const [mood, setMood] = useState("");
 
   const params = useMemo(() => ({ scope, mood }), [mood, scope]);
   const { items, loading, loadingMore, hasMore, error, sentinelRef, setItems } =
-    useInfinitePosts("feed", params);
+    useInfinitePosts("feed", params, {
+      enabled: !authLoading,
+      reloadKey: user?.id ?? "guest",
+    });
+  const pageLoading = authLoading || loading;
 
   return (
     <div className="mx-auto max-w-poetry space-y-8">
@@ -85,8 +91,8 @@ export function FeedPage() {
       </div>
 
       <div className="space-y-6">
-        {loading ? <LoadingState label="Ashaar jama kiye ja rahe hain..." /> : null}
-        {!loading && !items.length ? (
+        {pageLoading ? <LoadingState label="Ashaar jama kiye ja rahe hain..." /> : null}
+        {!pageLoading && !items.length ? (
           <EmptyState
             title="Abhi mehfil khaali hai"
             description="Naye alfaaz likhiye ya mood filter hata kar aur awaazein dekhiye."
