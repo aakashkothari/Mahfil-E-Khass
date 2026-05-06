@@ -1,7 +1,15 @@
 const CACHE_BUSTER_PARAM = "_ts";
 
+function toUrl(urlLike) {
+  return new URL(urlLike, window.location.origin);
+}
+
+function shouldAppendCacheBuster(url) {
+  return url.origin === window.location.origin && url.pathname.startsWith("/api/");
+}
+
 function withCacheBuster(urlLike) {
-  const url = new URL(urlLike, window.location.origin);
+  const url = toUrl(urlLike);
   url.searchParams.set(CACHE_BUSTER_PARAM, `${Date.now()}`);
   return url.toString();
 }
@@ -17,11 +25,13 @@ export async function noStoreFetch(input, init = {}) {
   let nextInput = input;
   if (method === "GET" || method === "HEAD") {
     if (typeof input === "string") {
-      nextInput = withCacheBuster(input);
+      const url = toUrl(input);
+      nextInput = shouldAppendCacheBuster(url) ? withCacheBuster(url.toString()) : input;
     } else if (input instanceof URL) {
-      nextInput = withCacheBuster(input.toString());
+      nextInput = shouldAppendCacheBuster(input) ? withCacheBuster(input.toString()) : input;
     } else if (input instanceof Request) {
-      nextInput = new Request(withCacheBuster(input.url), input);
+      const url = toUrl(input.url);
+      nextInput = shouldAppendCacheBuster(url) ? new Request(withCacheBuster(url.toString()), input) : input;
     }
   }
 
