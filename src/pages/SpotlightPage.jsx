@@ -70,7 +70,14 @@ export function SpotlightPage() {
       <div className="space-y-6">
         {posts.map((post) => (
           <div key={post.id} className="space-y-3">
-            <PostCard post={post} />
+            <PostCard
+              post={post}
+              onUpdate={(updated) =>
+                setPosts((current) =>
+                  current.map((entry) => (entry.id === updated.id ? updated : entry)),
+                )
+              }
+            />
             <div className="mahfil-card bg-primary/8 px-5 py-4">
               <div className="flex items-start justify-between gap-4">
                 <div>

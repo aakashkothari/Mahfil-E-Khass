@@ -9,17 +9,39 @@ export function useInfinitePosts(endpoint, params = {}) {
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
   const observerRef = useRef(null);
+  const abortRef = useRef(null);
+  const cursorRef = useRef(null);
+  const hasMoreRef = useRef(true);
+  const loadingRef = useRef(false);
+  const requestIdRef = useRef(0);
   const paramsKey = JSON.stringify(params);
 
   const load = useCallback(
     async ({ reset = false } = {}) => {
-      if ((!hasMore && !reset) || loadingMore) {
+      if ((!hasMoreRef.current && !reset) || loadingRef.current) {
         return;
       }
+
+      const requestId = requestIdRef.current + 1;
+      requestIdRef.current = requestId;
+      loadingRef.current = true;
+
+      if (reset) {
+        abortRef.current?.abort();
+      }
+
+      const controller = new AbortController();
+      abortRef.current = controller;
 
       setError("");
       if (reset) {
         setLoading(true);
+        setLoadingMore(false);
+        setItems([]);
+        setCursor(null);
+        setHasMore(true);
+        cursorRef.current = null;
+        hasMoreRef.current = true;
       } else {
         setLoadingMore(true);
       }
@@ -31,29 +53,58 @@ export function useInfinitePosts(endpoint, params = {}) {
             query.set(key, value);
           }
         });
-        if (!reset && cursor) {
-          query.set("cursor", cursor);
+        if (!reset && cursorRef.current) {
+          query.set("cursor", cursorRef.current);
         }
 
-        const response = await api(`${endpoint}?${query.toString()}`);
-        setItems((current) => (reset ? response.posts : [...current, ...response.posts]));
-        setCursor(response.nextCursor ?? null);
-        setHasMore(Boolean(response.nextCursor));
+        const response = await api(`${endpoint}?${query.toString()}`, {
+          signal: controller.signal,
+        });
+
+        if (controller.signal.aborted || requestId !== requestIdRef.current) {
+          return;
+        }
+
+        const nextCursor = response.nextCursor ?? null;
+        setItems((current) => {
+          if (reset) {
+            return response.posts;
+          }
+
+          const seen = new Set(current.map((entry) => entry.id));
+          const nextItems = response.posts.filter((entry) => !seen.has(entry.id));
+          return [...current, ...nextItems];
+        });
+        setCursor(nextCursor);
+        setHasMore(Boolean(nextCursor));
+        cursorRef.current = nextCursor;
+        hasMoreRef.current = Boolean(nextCursor);
       } catch (loadError) {
+        if (loadError.name === "AbortError") {
+          return;
+        }
+
         setError(loadError.message);
       } finally {
-        setLoading(false);
-        setLoadingMore(false);
+        if (requestId === requestIdRef.current) {
+          loadingRef.current = false;
+          setLoading(false);
+          setLoadingMore(false);
+        }
       }
     },
-    [cursor, endpoint, hasMore, loadingMore, paramsKey],
+    [endpoint, params, paramsKey],
   );
 
   useEffect(() => {
-    setCursor(null);
-    setHasMore(true);
     load({ reset: true });
-  }, [endpoint, paramsKey]);
+    return () => {
+      abortRef.current?.abort();
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [load]);
 
   const sentinelRef = useCallback(
     (node) => {

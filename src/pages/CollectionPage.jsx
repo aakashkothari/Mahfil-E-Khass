@@ -95,7 +95,15 @@ export function CollectionPage() {
       {posts.length ? (
         <div className="space-y-6">
           {posts.map((post) => (
-            <PostCard key={post.id} post={post} />
+            <PostCard
+              key={post.id}
+              post={post}
+              onUpdate={(updated) =>
+                setPosts((current) =>
+                  current.map((entry) => (entry.id === updated.id ? updated : entry)),
+                )
+              }
+            />
           ))}
         </div>
       ) : (

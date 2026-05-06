@@ -29,29 +29,19 @@ export default async function handler(request) {
       throw error;
     }
 
-    const { count, error: countError } = await supabaseAdmin
-      .from("comments")
-      .select("*", { count: "exact", head: true })
-      .eq("post_id", postId);
-
-    if (countError) {
-      throw countError;
-    }
-
-    const commentsCount = count ?? 0;
-
-    const { error: updateError } = await supabaseAdmin
+    const { data: post, error: postError } = await supabaseAdmin
       .from("posts")
-      .update({ comments_count: commentsCount })
-      .eq("id", postId);
+      .select("comments_count")
+      .eq("id", postId)
+      .maybeSingle();
 
-    if (updateError) {
-      throw updateError;
+    if (postError) {
+      throw postError;
     }
 
     return json({
       comment: inserted,
-      commentsCount,
+      commentsCount: post?.comments_count ?? 0,
     });
   } catch (error) {
     return serverError(error);

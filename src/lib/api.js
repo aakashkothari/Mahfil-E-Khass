@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { noStoreFetch } from "./noStoreFetch";
 
 async function authHeaders() {
   const {
@@ -12,13 +13,15 @@ async function authHeaders() {
 
 export async function api(path, options = {}) {
   const headers = {
+    Accept: "application/json",
     "Content-Type": "application/json",
     ...(await authHeaders()),
     ...(options.headers ?? {}),
   };
 
-  const response = await fetch(`/api/${path}`, {
+  const response = await noStoreFetch(`/api/${path}`, {
     ...options,
+    credentials: options.credentials ?? "same-origin",
     headers,
   });
 

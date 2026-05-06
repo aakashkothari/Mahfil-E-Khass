@@ -33,33 +33,27 @@ export default async function handler(request) {
         post_id: postId,
         user_id: user.id,
       });
-      if (error) {
+      if (error?.code === "23505") {
+        liked = true;
+      } else if (error) {
         throw error;
       }
-      liked = true;
+      if (!error) {
+        liked = true;
+      }
     }
 
-    const { count, error: countError } = await supabaseAdmin
-      .from("likes")
-      .select("*", { count: "exact", head: true })
-      .eq("post_id", postId);
-
-    if (countError) {
-      throw countError;
-    }
-
-    const likesCount = count ?? 0;
-
-    const { error: updateError } = await supabaseAdmin
+    const { data: post, error: postError } = await supabaseAdmin
       .from("posts")
-      .update({ likes_count: likesCount })
-      .eq("id", postId);
+      .select("likes_count")
+      .eq("id", postId)
+      .maybeSingle();
 
-    if (updateError) {
-      throw updateError;
+    if (postError) {
+      throw postError;
     }
 
-    return json({ liked, likesCount });
+    return json({ liked, likesCount: post?.likes_count ?? 0 });
   } catch (error) {
     return serverError(error);
   }

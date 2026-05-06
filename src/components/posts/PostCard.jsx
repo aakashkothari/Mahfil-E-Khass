@@ -44,7 +44,7 @@ function CommentComposer({ postId, onAdd }) {
         method: "POST",
         body: JSON.stringify({ postId, body: value.trim() }),
       });
-      onAdd(response.comment);
+      onAdd(response.comment, response.commentsCount);
       setValue("");
     } finally {
       setLoading(false);
@@ -208,11 +208,11 @@ export function PostCard({ post, onUpdate }) {
             {user ? (
               <CommentComposer
                 postId={post.id}
-                onAdd={(comment) => {
+                onAdd={(comment, commentsCount) => {
                   setComments((current) => [comment, ...current]);
                   onUpdate?.({
                     ...post,
-                    comments_count: (post.comments_count ?? 0) + 1,
+                    comments_count: commentsCount,
                   });
                 }}
               />
