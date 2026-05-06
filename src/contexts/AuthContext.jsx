@@ -3,6 +3,40 @@ import { supabase } from "../lib/supabase";
 
 const AuthContext = createContext(null);
 
+function fallbackPenName(user) {
+  return (
+    user?.user_metadata?.pen_name?.trim() ||
+    user?.email?.split("@")[0] ||
+    "Mehfili"
+  );
+}
+
+function fallbackProfile(user) {
+  if (!user) {
+    return null;
+  }
+
+  const penName = fallbackPenName(user);
+  const avatarInitials = penName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("") || "MH";
+
+  return {
+    id: user.id,
+    pen_name: penName,
+    email: user.email ?? "",
+    avatar_initials: avatarInitials,
+    bio: "",
+    stars_total: 0,
+    tier: "NAYA_SHAYAR",
+    followers_count: 0,
+    following_count: 0,
+  };
+}
+
 async function loadProfile(userId) {
   if (!userId) {
     return null;
@@ -43,8 +77,10 @@ export function AuthProvider({ children }) {
       if (activeSession?.user) {
         const userProfile = await loadProfile(activeSession.user.id).catch(() => null);
         if (mounted) {
-          setProfile(userProfile);
+          setProfile(userProfile ?? fallbackProfile(activeSession.user));
         }
+      } else if (mounted) {
+        setProfile(null);
       }
 
       if (mounted) {
@@ -60,7 +96,7 @@ export function AuthProvider({ children }) {
       setSession(nextSession);
       if (nextSession?.user) {
         const userProfile = await loadProfile(nextSession.user.id).catch(() => null);
-        setProfile(userProfile);
+        setProfile(userProfile ?? fallbackProfile(nextSession.user));
       } else {
         setProfile(null);
       }

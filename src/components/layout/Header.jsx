@@ -7,6 +7,10 @@ import { Button } from "../ui/Button";
 export function Header() {
   const navigate = useNavigate();
   const { profile, user, signOut } = useAuth();
+  const profilePenName =
+    profile?.pen_name || user?.user_metadata?.pen_name || user?.email?.split("@")[0] || "";
+  const profileInitials =
+    profile?.avatar_initials || getInitials(profilePenName || user?.email || "Mehfil");
 
   return (
     <header className="sticky top-0 z-50 border-b border-surface-border bg-surface/80 backdrop-blur-xl">
@@ -31,7 +35,7 @@ export function Header() {
             </NavLink>
           ))}
           <NavLink
-            to={profile ? `/u/${profile.pen_name}` : "/auth"}
+            to={user && profilePenName ? `/u/${profilePenName}` : "/auth"}
             className={({ isActive }) =>
               isActive ? "text-primary" : "text-text-soft hover:text-text-main"
             }
@@ -41,13 +45,17 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-3">
-          {user && profile ? (
+          {user ? (
             <>
               <button
-                onClick={() => navigate(`/u/${profile.pen_name}`)}
+                onClick={() => {
+                  if (profilePenName) {
+                    navigate(`/u/${profilePenName}`);
+                  }
+                }}
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-surface-border bg-surface-elevated text-sm font-semibold text-text-main"
               >
-                {profile.avatar_initials || getInitials(profile.pen_name)}
+                {profileInitials}
               </button>
               <Button variant="secondary" size="sm" onClick={() => signOut()}>
                 Nikalna
