@@ -85,7 +85,7 @@ export function TrendingPage() {
       ) : null}
 
       {hasMore ? <div ref={sentinelRef} className="h-2" /> : null}
-      {loadingMore ? <LoadingState label="Aur trending awaazein..." /> : null}
+      {loadingMore ? <LoadingState compact label="Aur trending awaazein..." /> : null}
     </div>
   );
 }

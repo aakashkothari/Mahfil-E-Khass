@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../../lib/api";
 import { TIERS } from "../../lib/constants";
 import { useAuth } from "../../contexts/AuthContext";
@@ -75,8 +75,10 @@ export function PostCard({ post, onUpdate }) {
   const [showHindi, setShowHindi] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [pendingLike, setPendingLike] = useState(false);
+  const [showLikeBurst, setShowLikeBurst] = useState(false);
   const [optimisticLiked, setOptimisticLiked] = useState(Boolean(post.liked_by_me));
   const [optimisticLikesCount, setOptimisticLikesCount] = useState(post.likes_count ?? 0);
+  const likeBurstTimeoutRef = useRef(null);
 
   const author = post.author ?? {};
   const initialComments = useMemo(() => post.comments_preview ?? [], [post.comments_preview]);
@@ -91,6 +93,14 @@ export function PostCard({ post, onUpdate }) {
     setOptimisticLikesCount(post.likes_count ?? 0);
   }, [post.id, post.liked_by_me, post.likes_count]);
 
+  useEffect(() => {
+    return () => {
+      if (likeBurstTimeoutRef.current) {
+        window.clearTimeout(likeBurstTimeoutRef.current);
+      }
+    };
+  }, []);
+
   async function toggleLike(event) {
     event.preventDefault();
     if (!user || pendingLike) {
@@ -99,6 +109,19 @@ export function PostCard({ post, onUpdate }) {
 
     const nextLiked = !optimisticLiked;
     const nextLikesCount = Math.max(0, optimisticLikesCount + (nextLiked ? 1 : -1));
+
+    if (nextLiked) {
+      if (likeBurstTimeoutRef.current) {
+        window.clearTimeout(likeBurstTimeoutRef.current);
+      }
+      setShowLikeBurst(true);
+      likeBurstTimeoutRef.current = window.setTimeout(() => {
+        setShowLikeBurst(false);
+        likeBurstTimeoutRef.current = null;
+      }, 700);
+    } else {
+      setShowLikeBurst(false);
+    }
 
     setOptimisticLiked(nextLiked);
     setOptimisticLikesCount(nextLikesCount);
@@ -166,20 +189,30 @@ export function PostCard({ post, onUpdate }) {
 
         <div className="flex flex-wrap items-center justify-between gap-4 border-t border-surface-border pt-5">
           <div className="flex items-center gap-5">
-            <button
-              type="button"
-              onClick={toggleLike}
-              disabled={!user || pendingLike}
-              className={cn(
-                "flex items-center gap-2 text-sm transition",
-                optimisticLiked ? "text-danger" : "text-text-soft hover:text-danger",
-              )}
-            >
-              <span className="material-symbols-outlined">
-                {optimisticLiked ? "favorite" : "favorite_border"}
-              </span>
-              <span>{formatCount(optimisticLikesCount)}</span>
-            </button>
+            <div className="relative">
+              {showLikeBurst ? (
+                <span
+                  aria-hidden="true"
+                  className="like-burst pointer-events-none absolute -top-10 left-1/2 z-10 -translate-x-1/2 text-danger"
+                >
+                  <span className="material-symbols-outlined text-[2rem]">favorite</span>
+                </span>
+              ) : null}
+              <button
+                type="button"
+                onClick={toggleLike}
+                disabled={!user || pendingLike}
+                className={cn(
+                  "flex items-center gap-2 text-sm transition",
+                  optimisticLiked ? "text-danger" : "text-text-soft hover:text-danger",
+                )}
+              >
+                <span className="material-symbols-outlined">
+                  {optimisticLiked ? "favorite" : "favorite_border"}
+                </span>
+                <span>{formatCount(optimisticLikesCount)}</span>
+              </button>
+            </div>
 
             <button
               type="button"

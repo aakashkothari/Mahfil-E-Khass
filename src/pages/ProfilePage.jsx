@@ -404,6 +404,10 @@ export function ProfilePage() {
           </div>
         ) : null}
 
+        {saveLoading ? (
+          <LoadingState compact label="Profile ke alfaaz nayi soorat le rahe hain..." />
+        ) : null}
+
         {posts.length ? (
           posts.map((post) => (
             <PostCard

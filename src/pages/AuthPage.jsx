@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/Button";
+import { LoadingState } from "../components/ui/LoadingState";
 import { useAuth } from "../contexts/AuthContext";
 
 export function AuthPage() {
@@ -130,6 +131,13 @@ export function AuthPage() {
             <div className="rounded-2xl border border-primary/25 bg-primary/10 px-4 py-3 text-sm text-primary">
               {notice}
             </div>
+          ) : null}
+
+          {loading ? (
+            <LoadingState
+              compact
+              label={mode === "signup" ? "Aapki nayi mehfil saj rahi hai..." : "Darwaza khola ja raha hai..."}
+            />
           ) : null}
 
           <Button className="w-full" size="lg" disabled={loading}>

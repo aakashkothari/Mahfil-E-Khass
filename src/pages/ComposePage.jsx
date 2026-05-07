@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/Button";
+import { LoadingState } from "../components/ui/LoadingState";
 import { moodOptions } from "../lib/moods";
 import { api } from "../lib/api";
 
@@ -17,6 +18,16 @@ export function ComposePage() {
     post: false,
   });
   const [error, setError] = useState("");
+  const activeLoader =
+    loading.post
+      ? "Aapki shayari mehfil tak pahunch rahi hai..."
+      : loading.translate
+        ? "Hindi mein lehja utara ja raha hai..."
+        : loading.mood
+          ? "Sher ka mizaj samjha ja raha hai..."
+          : loading.transliterate
+            ? "Roman ko aur narm banaya ja raha hai..."
+            : "";
 
   async function runAction(key, endpoint, handler) {
     setError("");
@@ -149,6 +160,8 @@ export function ComposePage() {
               {error}
             </div>
           ) : null}
+
+          {activeLoader ? <LoadingState compact label={activeLoader} /> : null}
 
           <div className="flex flex-wrap items-center justify-between gap-4 border-t border-surface-border pt-6">
             <p className="text-xs uppercase tracking-[0.22em] text-text-soft">

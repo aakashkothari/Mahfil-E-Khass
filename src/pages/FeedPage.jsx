@@ -118,7 +118,7 @@ export function FeedPage() {
       ) : null}
 
       {hasMore ? <div ref={sentinelRef} className="h-2" /> : null}
-      {loadingMore ? <LoadingState label="Aur alfaaz aa rahe hain..." /> : null}
+      {loadingMore ? <LoadingState compact label="Aur alfaaz aa rahe hain..." /> : null}
     </div>
   );
 }
