@@ -21,6 +21,7 @@ export default async function handler(request) {
       .select("*, author:users!posts_author_id_fkey(*)")
       .order("trending_score", { ascending: false })
       .order("created_at", { ascending: false })
+      .order("id", { ascending: false })
       .range(cursor, cursor + limit);
 
     if (mood) {

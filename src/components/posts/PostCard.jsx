@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { api } from "../../lib/api";
 import { TIERS } from "../../lib/constants";
 import { useAuth } from "../../contexts/AuthContext";
@@ -75,12 +76,14 @@ export function PostCard({ post, onUpdate }) {
   const [showHindi, setShowHindi] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [pendingLike, setPendingLike] = useState(false);
+  const [guestNotice, setGuestNotice] = useState("");
   const [showLikeBurst, setShowLikeBurst] = useState(false);
   const [optimisticLiked, setOptimisticLiked] = useState(Boolean(post.liked_by_me));
   const [optimisticLikesCount, setOptimisticLikesCount] = useState(post.likes_count ?? 0);
   const likeBurstTimeoutRef = useRef(null);
 
   const author = post.author ?? {};
+  const authorProfileHref = author.pen_name ? `/u/${author.pen_name}` : null;
   const initialComments = useMemo(() => post.comments_preview ?? [], [post.comments_preview]);
   const [comments, setComments] = useState(initialComments);
 
@@ -101,11 +104,22 @@ export function PostCard({ post, onUpdate }) {
     };
   }, []);
 
+  function promptLogin(message) {
+    setGuestNotice(message);
+  }
+
   async function toggleLike(event) {
     event.preventDefault();
-    if (!user || pendingLike) {
+    if (!user) {
+      promptLogin("Log in to add likes or comments.");
       return;
     }
+
+    if (pendingLike) {
+      return;
+    }
+
+    setGuestNotice("");
 
     const nextLiked = !optimisticLiked;
     const nextLikesCount = Math.max(0, optimisticLikesCount + (nextLiked ? 1 : -1));
@@ -148,6 +162,16 @@ export function PostCard({ post, onUpdate }) {
     }
   }
 
+  function toggleComments() {
+    if (!user) {
+      promptLogin("Log in to add comments or like posts.");
+      return;
+    }
+
+    setGuestNotice("");
+    setShowComments((current) => !current);
+  }
+
   return (
     <article className="mahfil-card overflow-hidden">
       {post.is_spotlight ? (
@@ -160,12 +184,30 @@ export function PostCard({ post, onUpdate }) {
       <div className="space-y-6 p-5 sm:p-7">
         <header className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full border border-surface-border bg-surface-soft text-sm font-semibold">
-              {author.avatar_initials || getInitials(author.pen_name)}
-            </div>
+            {authorProfileHref ? (
+              <Link
+                to={authorProfileHref}
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-surface-border bg-surface-soft text-sm font-semibold transition hover:border-primary/40 hover:text-primary"
+              >
+                {author.avatar_initials || getInitials(author.pen_name)}
+              </Link>
+            ) : (
+              <div className="flex h-11 w-11 items-center justify-center rounded-full border border-surface-border bg-surface-soft text-sm font-semibold">
+                {author.avatar_initials || getInitials(author.pen_name)}
+              </div>
+            )}
             <div>
               <div className="flex flex-wrap items-center gap-3">
-                <h3 className="font-semibold text-text-main">{author.pen_name}</h3>
+                {authorProfileHref ? (
+                  <Link
+                    to={authorProfileHref}
+                    className="font-semibold text-text-main transition hover:text-primary"
+                  >
+                    {author.pen_name}
+                  </Link>
+                ) : (
+                  <h3 className="font-semibold text-text-main">{author.pen_name}</h3>
+                )}
                 <TierBadge tier={author.tier} />
               </div>
               <p className="mt-1 text-xs uppercase tracking-[0.18em] text-text-soft">
@@ -201,10 +243,14 @@ export function PostCard({ post, onUpdate }) {
               <button
                 type="button"
                 onClick={toggleLike}
-                disabled={!user || pendingLike}
+                disabled={pendingLike}
                 className={cn(
                   "flex items-center gap-2 text-sm transition",
-                  optimisticLiked ? "text-danger" : "text-text-soft hover:text-danger",
+                  optimisticLiked
+                    ? "text-danger"
+                    : user
+                      ? "text-text-soft hover:text-danger"
+                      : "text-text-soft hover:text-primary",
                 )}
               >
                 <span className="material-symbols-outlined">
@@ -216,7 +262,7 @@ export function PostCard({ post, onUpdate }) {
 
             <button
               type="button"
-              onClick={() => setShowComments((current) => !current)}
+              onClick={toggleComments}
               className="flex items-center gap-2 text-sm text-text-soft transition hover:text-primary"
             >
               <span className="material-symbols-outlined">chat_bubble</span>
@@ -242,6 +288,12 @@ export function PostCard({ post, onUpdate }) {
             </button>
           </div>
         </div>
+
+        {guestNotice ? (
+          <div className="rounded-lg border border-primary/20 bg-primary/10 px-4 py-3 text-sm text-primary">
+            {guestNotice}
+          </div>
+        ) : null}
 
         {showComments ? (
           <section className="rounded-lg border border-surface-border bg-surface-soft p-4">

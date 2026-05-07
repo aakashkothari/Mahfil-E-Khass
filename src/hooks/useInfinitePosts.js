@@ -10,6 +10,7 @@ export function useInfinitePosts(endpoint, params = {}, options = {}) {
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
   const observerRef = useRef(null);
+  const sentinelNodeRef = useRef(null);
   const abortRef = useRef(null);
   const cursorRef = useRef(null);
   const hasMoreRef = useRef(true);
@@ -132,24 +133,65 @@ export function useInfinitePosts(endpoint, params = {}, options = {}) {
     };
   }, [enabled, load, reloadKey]);
 
+  const maybeLoadMore = useCallback(() => {
+    const node = sentinelNodeRef.current;
+    if (!node || !hasMoreRef.current || loadingRef.current) {
+      return;
+    }
+
+    const rect = node.getBoundingClientRect();
+    if (rect.top <= window.innerHeight + 320) {
+      load();
+    }
+  }, [load]);
+
   const sentinelRef = useCallback(
     (node) => {
       if (observerRef.current) {
         observerRef.current.disconnect();
       }
 
-      observerRef.current = new IntersectionObserver((entries) => {
-        if (entries[0]?.isIntersecting) {
-          load();
-        }
-      });
+      sentinelNodeRef.current = node;
+
+      observerRef.current = new IntersectionObserver(
+        (entries) => {
+          if (entries[0]?.isIntersecting) {
+            load();
+          }
+        },
+        {
+          root: null,
+          rootMargin: "320px 0px",
+          threshold: 0.01,
+        },
+      );
 
       if (node) {
         observerRef.current.observe(node);
+        maybeLoadMore();
       }
     },
-    [load],
+    [load, maybeLoadMore],
   );
+
+  useEffect(() => {
+    if (!enabled) {
+      return undefined;
+    }
+
+    const handleScroll = () => {
+      maybeLoadMore();
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll);
+    handleScroll();
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
+  }, [enabled, maybeLoadMore, items.length, hasMore]);
 
   return {
     items,

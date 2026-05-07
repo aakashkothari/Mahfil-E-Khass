@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { PostCard } from "../components/posts/PostCard";
 import { Button } from "../components/ui/Button";
 import { EmptyState } from "../components/ui/EmptyState";
@@ -16,9 +16,9 @@ export function ProfilePage() {
   const { user, refreshProfile } = useAuth();
   const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
-  const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [followLoading, setFollowLoading] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
   const [error, setError] = useState("");
@@ -70,32 +70,34 @@ export function ProfilePage() {
 
         if (!userProfile) {
           setPosts([]);
-          setCollections([]);
+          setIsFollowing(false);
           return;
         }
 
-        const [
-          { data: postRows, error: postsError },
-          { data: collectionRows, error: collectionsError },
-        ] = await Promise.all([
+        const requests = [
           supabase
             .from("posts")
             .select("*, author:users!posts_author_id_fkey(*)")
             .eq("author_id", userProfile.id)
             .order("created_at", { ascending: false }),
-          supabase
-            .from("collections")
-            .select("*")
-            .eq("owner_id", userProfile.id)
-            .order("created_at", { ascending: false }),
-        ]);
+        ];
+
+        if (user?.id && user.id !== userProfile.id) {
+          requests.push(
+            supabase
+              .from("follows")
+              .select("id")
+              .eq("follower_id", user.id)
+              .eq("following_id", userProfile.id)
+              .maybeSingle(),
+          );
+        }
+
+        const [postsResult, followResult] = await Promise.all(requests);
+        const { data: postRows, error: postsError } = postsResult;
 
         if (postsError) {
           throw postsError;
-        }
-
-        if (collectionsError) {
-          throw collectionsError;
         }
 
         const hydrated = await hydratePosts(postRows ?? [], user?.id);
@@ -105,7 +107,7 @@ export function ProfilePage() {
         }
 
         setPosts(hydrated);
-        setCollections(collectionRows ?? []);
+        setIsFollowing(Boolean(followResult?.data?.id));
       } catch (loadError) {
         if (!active) {
           return;
@@ -113,7 +115,7 @@ export function ProfilePage() {
 
         setProfile(null);
         setPosts([]);
-        setCollections([]);
+        setIsFollowing(false);
         setError(loadError.message ?? "Profile load nahi ho paya.");
       } finally {
         if (active) {
@@ -129,11 +131,18 @@ export function ProfilePage() {
   }, [penName, user?.id]);
 
   async function toggleFollow() {
-    if (!user || !profile || isOwnProfile) {
+    if (!user) {
+      setError("");
+      setNotice("Log in to follow this author.");
+      return;
+    }
+
+    if (!profile || isOwnProfile) {
       return;
     }
 
     setFollowLoading(true);
+    setNotice("");
     try {
       const { data: existing, error: existingError } = await supabase
         .from("follows")
@@ -151,6 +160,7 @@ export function ProfilePage() {
         if (deleteError) {
           throw deleteError;
         }
+        setIsFollowing(false);
       } else {
         const { error: insertError } = await supabase.from("follows").insert({
           follower_id: user.id,
@@ -159,6 +169,7 @@ export function ProfilePage() {
         if (insertError) {
           throw insertError;
         }
+        setIsFollowing(true);
       }
 
       const { data: refreshed, error: refreshedError } = await supabase
@@ -359,7 +370,7 @@ export function ProfilePage() {
           </div>
           {!isOwnProfile ? (
             <Button className="mt-6 w-full" onClick={toggleFollow} disabled={followLoading}>
-              {followLoading ? "..." : "Follow"}
+              {followLoading ? "..." : isFollowing ? "Following" : "Follow"}
             </Button>
           ) : !editMode ? (
             <Button className="mt-6 w-full" variant="secondary" onClick={() => setEditMode(true)}>
@@ -368,27 +379,6 @@ export function ProfilePage() {
           ) : null}
         </section>
 
-        <section className="mahfil-card px-6 py-6">
-          <p className="text-xs uppercase tracking-[0.24em] text-text-soft">Diwan</p>
-          <div className="mt-4 space-y-3">
-            {collections.length ? (
-              collections.map((collection) => (
-                <Link
-                  key={collection.id}
-                  to={`/diwan/${collection.id}`}
-                  className="block rounded-2xl border border-surface-border bg-surface-soft/60 px-4 py-4"
-                >
-                  <p className="font-semibold text-text-main">{collection.title}</p>
-                  <p className="mt-1 text-sm text-text-soft">
-                    {collection.description || "Apni pasandeeda awaazon ka ek chhota diwan."}
-                  </p>
-                </Link>
-              ))
-            ) : (
-              <p className="text-sm text-text-soft">Abhi koi collection nahi bani.</p>
-            )}
-          </div>
-        </section>
       </aside>
 
       <section className="space-y-6">
