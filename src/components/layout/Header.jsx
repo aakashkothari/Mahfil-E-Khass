@@ -12,6 +12,15 @@ export function Header() {
   const profileInitials =
     profile?.avatar_initials || getInitials(profilePenName || user?.email || "Mehfil");
 
+  async function handleSignOut() {
+    try {
+      await signOut();
+      navigate("/auth", { replace: true });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   return (
     <header className="sticky top-0 z-50 border-b border-surface-border bg-surface/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-shell items-center justify-between px-4 sm:px-6">
@@ -48,6 +57,7 @@ export function Header() {
           {user ? (
             <>
               <button
+                type="button"
                 onClick={() => {
                   if (profilePenName) {
                     navigate(`/u/${profilePenName}`);
@@ -57,7 +67,7 @@ export function Header() {
               >
                 {profileInitials}
               </button>
-              <Button variant="secondary" size="sm" onClick={() => signOut()}>
+              <Button type="button" variant="secondary" size="sm" onClick={handleSignOut}>
                 Nikalna
               </Button>
             </>

@@ -137,10 +137,20 @@ export function AuthProvider({ children }) {
         return data;
       },
       async signOut() {
+        setLoading(true);
+
         const { error } = await supabase.auth.signOut();
         if (error) {
-          throw error;
+          const { error: localError } = await supabase.auth.signOut({ scope: "local" });
+          if (localError) {
+            setLoading(false);
+            throw error;
+          }
         }
+
+        setSession(null);
+        setProfile(null);
+        setLoading(false);
       },
       async refreshProfile() {
         if (!session?.user?.id) {

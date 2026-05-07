@@ -75,6 +75,8 @@ export function PostCard({ post, onUpdate }) {
   const [showHindi, setShowHindi] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [pendingLike, setPendingLike] = useState(false);
+  const [optimisticLiked, setOptimisticLiked] = useState(Boolean(post.liked_by_me));
+  const [optimisticLikesCount, setOptimisticLikesCount] = useState(post.likes_count ?? 0);
 
   const author = post.author ?? {};
   const initialComments = useMemo(() => post.comments_preview ?? [], [post.comments_preview]);
@@ -84,22 +86,40 @@ export function PostCard({ post, onUpdate }) {
     setComments(initialComments);
   }, [initialComments, post.id]);
 
-  async function toggleLike() {
+  useEffect(() => {
+    setOptimisticLiked(Boolean(post.liked_by_me));
+    setOptimisticLikesCount(post.likes_count ?? 0);
+  }, [post.id, post.liked_by_me, post.likes_count]);
+
+  async function toggleLike(event) {
+    event.preventDefault();
     if (!user || pendingLike) {
       return;
     }
 
+    const nextLiked = !optimisticLiked;
+    const nextLikesCount = Math.max(0, optimisticLikesCount + (nextLiked ? 1 : -1));
+
+    setOptimisticLiked(nextLiked);
+    setOptimisticLikesCount(nextLikesCount);
     setPendingLike(true);
     try {
       const response = await api("toggleLike", {
         method: "POST",
         body: JSON.stringify({ postId: post.id }),
       });
+
+      setOptimisticLiked(response.liked);
+      setOptimisticLikesCount(response.likesCount);
       onUpdate?.({
         ...post,
         likes_count: response.likesCount,
         liked_by_me: response.liked,
       });
+    } catch (error) {
+      setOptimisticLiked(Boolean(post.liked_by_me));
+      setOptimisticLikesCount(post.likes_count ?? 0);
+      console.error(error);
     } finally {
       setPendingLike(false);
     }
@@ -147,20 +167,22 @@ export function PostCard({ post, onUpdate }) {
         <div className="flex flex-wrap items-center justify-between gap-4 border-t border-surface-border pt-5">
           <div className="flex items-center gap-5">
             <button
+              type="button"
               onClick={toggleLike}
               disabled={!user || pendingLike}
               className={cn(
                 "flex items-center gap-2 text-sm transition",
-                post.liked_by_me ? "text-danger" : "text-text-soft hover:text-danger",
+                optimisticLiked ? "text-danger" : "text-text-soft hover:text-danger",
               )}
             >
               <span className="material-symbols-outlined">
-                {post.liked_by_me ? "favorite" : "favorite_border"}
+                {optimisticLiked ? "favorite" : "favorite_border"}
               </span>
-              <span>{formatCount(post.likes_count)}</span>
+              <span>{formatCount(optimisticLikesCount)}</span>
             </button>
 
             <button
+              type="button"
               onClick={() => setShowComments((current) => !current)}
               className="flex items-center gap-2 text-sm text-text-soft transition hover:text-primary"
             >
@@ -172,13 +194,17 @@ export function PostCard({ post, onUpdate }) {
           <div className="flex items-center gap-2">
             {post.content_hindi ? (
               <button
+                type="button"
                 onClick={() => setShowHindi((current) => !current)}
                 className="rounded-full border border-primary/20 bg-primary/8 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary"
               >
                 {showHindi ? "Roman" : "Hindi"}
               </button>
             ) : null}
-            <button className="rounded-full border border-surface-border px-4 py-2 text-xs uppercase tracking-[0.2em] text-text-soft">
+            <button
+              type="button"
+              className="rounded-full border border-surface-border px-4 py-2 text-xs uppercase tracking-[0.2em] text-text-soft"
+            >
               {post.trending_score?.toFixed?.(1) ?? "0.0"} score
             </button>
           </div>
