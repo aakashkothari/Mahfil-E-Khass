@@ -8,7 +8,7 @@ export const NAV_ITEMS = [
 export const TIERS = {
   NAYA_SHAYAR: {
     label: "Naya Shayar",
-    className: "from-slate-500 to-slate-300 text-slate-950",
+    className: "from-[#d8d6dc] to-[#c5c5d5] text-[#191b26]",
   },
   USTAD: {
     label: "Ustaad",
@@ -16,7 +16,7 @@ export const TIERS = {
   },
   MAHFIL_E_KHAS: {
     label: "Mahfil-e-Khas",
-    className: "from-primary to-primary-deep text-white",
+    className: "from-primary-container to-primary text-white",
   },
 };
 

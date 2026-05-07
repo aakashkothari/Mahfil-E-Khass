@@ -10,7 +10,7 @@ function TierBadge({ tier }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full bg-gradient-to-r px-3 py-1 text-[10px] font-bold uppercase tracking-[0.28em]",
+        "inline-flex items-center rounded-full border border-white/60 bg-gradient-to-r px-3 py-1 text-[10px] font-bold uppercase tracking-[0.28em] shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]",
         value.className,
       )}
     >
@@ -62,7 +62,7 @@ function CommentComposer({ postId, onAdd }) {
       />
       <button
         disabled={loading}
-        className="self-end rounded-full bg-primary px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white"
+        className="self-end rounded border border-primary bg-primary px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white"
       >
         {loading ? "..." : "Bhejein"}
       </button>
@@ -151,7 +151,7 @@ export function PostCard({ post, onUpdate }) {
   return (
     <article className="mahfil-card overflow-hidden">
       {post.is_spotlight ? (
-        <div className="flex items-center gap-3 border-b border-surface-border bg-primary/10 px-5 py-3 text-xs uppercase tracking-[0.24em] text-primary">
+        <div className="flex items-center gap-3 border-b border-surface-border bg-primary/6 px-5 py-3 text-xs uppercase tracking-[0.24em] text-primary">
           <span className="material-symbols-outlined text-base">stars</span>
           <span>Weekly Spotlight</span>
         </div>
@@ -160,7 +160,7 @@ export function PostCard({ post, onUpdate }) {
       <div className="space-y-6 p-5 sm:p-7">
         <header className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full border border-surface-border bg-surface-elevated text-sm font-semibold">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full border border-surface-border bg-surface-soft text-sm font-semibold">
               {author.avatar_initials || getInitials(author.pen_name)}
             </div>
             <div>
@@ -229,14 +229,14 @@ export function PostCard({ post, onUpdate }) {
               <button
                 type="button"
                 onClick={() => setShowHindi((current) => !current)}
-                className="rounded-full border border-primary/20 bg-primary/8 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary"
+                className="rounded border border-primary/15 bg-primary/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary"
               >
                 {showHindi ? "Roman" : "Hindi"}
               </button>
             ) : null}
             <button
               type="button"
-              className="rounded-full border border-surface-border px-4 py-2 text-xs uppercase tracking-[0.2em] text-text-soft"
+              className="rounded border border-surface-border px-4 py-2 text-xs uppercase tracking-[0.2em] text-text-soft"
             >
               {post.trending_score?.toFixed?.(1) ?? "0.0"} score
             </button>
@@ -244,12 +244,12 @@ export function PostCard({ post, onUpdate }) {
         </div>
 
         {showComments ? (
-          <section className="rounded-3xl border border-surface-border bg-surface-soft/70 p-4">
+          <section className="rounded-lg border border-surface-border bg-surface-soft p-4">
             <h4 className="text-xs uppercase tracking-[0.24em] text-text-soft">Guftagu</h4>
             <div className="mt-4 space-y-4">
               {comments.length ? (
                 comments.map((comment) => (
-                  <div key={comment.id} className="rounded-2xl bg-white/4 px-4 py-3">
+                  <div key={comment.id} className="rounded-lg border border-surface-border/70 bg-surface-card px-4 py-3">
                     <div className="flex items-center justify-between gap-3">
                       <span className="text-sm font-semibold text-text-main">
                         {comment.author?.pen_name ?? "Mehfili"}

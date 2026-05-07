@@ -22,16 +22,17 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-surface-border bg-surface/80 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-shell items-center justify-between px-4 sm:px-6">
+    <header className="sticky top-0 z-50 border-b border-surface-border bg-surface/92 backdrop-blur-md">
+      <div className="mx-auto flex h-[4.5rem] max-w-shell items-center justify-between px-4 sm:px-6">
         <Link to="/" className="flex items-center gap-3">
-          <img src="/diya.png" alt="Mahfil" className="h-8 w-8 object-contain" />
-          <span className="font-poetry text-2xl text-text-main">
-            mah<span className="text-primary">fil *</span>
+          <img src="/diya.png" alt="Mahfil" className="h-8 w-8 object-contain opacity-90" />
+          <span className="font-sans text-[1.8rem] font-medium tracking-[-0.03em] text-text-main">
+            mah<span className="text-primary">fil</span>{" "}
+            <span className="text-primary text-[1.45rem] align-middle">*</span>
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-6 md:flex">
+        <nav className="hidden items-center gap-7 text-sm md:flex">
           {NAV_ITEMS.map((item) => (
             <NavLink
               key={item.to}
@@ -63,7 +64,7 @@ export function Header() {
                     navigate(`/u/${profilePenName}`);
                   }
                 }}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-surface-border bg-surface-elevated text-sm font-semibold text-text-main"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-surface-border bg-surface-card text-sm font-semibold text-text-main shadow-indigo"
               >
                 {profileInitials}
               </button>

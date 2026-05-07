@@ -2,7 +2,7 @@ import { cn } from "../../lib/utils";
 
 export function SegmentedControl({ options, value, onChange }) {
   return (
-    <div className="inline-flex rounded-full border border-surface-border bg-surface-soft/70 p-1">
+    <div className="inline-flex rounded-lg border border-surface-border bg-surface-soft p-1">
       {options.map((option) => {
         const active = option.value === value;
         return (
@@ -10,8 +10,10 @@ export function SegmentedControl({ options, value, onChange }) {
             key={option.value}
             onClick={() => onChange(option.value)}
             className={cn(
-              "rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] transition",
-              active ? "bg-primary text-white" : "text-text-soft hover:text-white",
+              "rounded px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] transition",
+              active
+                ? "border border-primary/10 bg-surface-card text-primary shadow-indigo"
+                : "text-text-soft hover:text-primary",
             )}
           >
             {option.label}
