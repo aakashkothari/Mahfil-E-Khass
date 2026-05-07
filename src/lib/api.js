@@ -1,21 +1,16 @@
-import { supabase } from "./supabase";
+import { getAccessToken } from "./authSession";
 import { noStoreFetch } from "./noStoreFetch";
 
-async function authHeaders() {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  return session?.access_token
-    ? { Authorization: `Bearer ${session.access_token}` }
-    : {};
+function authHeaders() {
+  const accessToken = getAccessToken();
+  return accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
 }
 
 export async function api(path, options = {}) {
   const headers = {
     Accept: "application/json",
     "Content-Type": "application/json",
-    ...(await authHeaders()),
+    ...authHeaders(),
     ...(options.headers ?? {}),
   };
 

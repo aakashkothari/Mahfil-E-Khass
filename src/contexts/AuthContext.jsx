@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { setCurrentAuthSession } from "../lib/authSession";
 import { supabase } from "../lib/supabase";
 
 const AuthContext = createContext(null);
@@ -63,44 +64,35 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let mounted = true;
 
-    const bootstrap = async () => {
-      const {
-        data: { session: activeSession },
-      } = await supabase.auth.getSession();
+    const syncSession = (nextSession) => {
+      setCurrentAuthSession(nextSession);
 
       if (!mounted) {
         return;
       }
 
-      setSession(activeSession);
-
-      if (activeSession?.user) {
-        const userProfile = await loadProfile(activeSession.user.id).catch(() => null);
-        if (mounted) {
-          setProfile(userProfile ?? fallbackProfile(activeSession.user));
-        }
-      } else if (mounted) {
-        setProfile(null);
-      }
-
-      if (mounted) {
-        setLoading(false);
-      }
-    };
-
-    bootstrap();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, nextSession) => {
       setSession(nextSession);
-      if (nextSession?.user) {
-        const userProfile = await loadProfile(nextSession.user.id).catch(() => null);
-        setProfile(userProfile ?? fallbackProfile(nextSession.user));
-      } else {
+      if (!nextSession?.user) {
         setProfile(null);
       }
       setLoading(false);
+    };
+
+    supabase.auth
+      .getSession()
+      .then(({ data: { session: activeSession } }) => {
+        syncSession(activeSession);
+      })
+      .catch(() => {
+        if (mounted) {
+          setLoading(false);
+        }
+      });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      syncSession(nextSession);
     });
 
     return () => {
@@ -108,6 +100,36 @@ export function AuthProvider({ children }) {
       subscription.unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function syncProfile() {
+      if (!session?.user) {
+        if (mounted) {
+          setProfile(null);
+        }
+        return;
+      }
+
+      try {
+        const userProfile = await loadProfile(session.user.id);
+        if (mounted) {
+          setProfile(userProfile ?? fallbackProfile(session.user));
+        }
+      } catch {
+        if (mounted) {
+          setProfile(fallbackProfile(session.user));
+        }
+      }
+    }
+
+    syncProfile();
+
+    return () => {
+      mounted = false;
+    };
+  }, [session?.user?.id]);
 
   const value = useMemo(
     () => ({
@@ -148,6 +170,7 @@ export function AuthProvider({ children }) {
           }
         }
 
+        setCurrentAuthSession(null);
         setSession(null);
         setProfile(null);
         setLoading(false);
