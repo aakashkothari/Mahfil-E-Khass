@@ -20,7 +20,16 @@ export function badRequest(message) {
   return json({ error: message }, 400);
 }
 
+export function unauthorized(message = "Authentication required.") {
+  return json({ error: message }, 401);
+}
+
 export function serverError(error) {
-  console.error(error);
-  return json({ error: error.message ?? "Unexpected server error." }, 500);
+  const status = Number(error?.status ?? error?.statusCode ?? 500);
+
+  if (status >= 500) {
+    console.error(error);
+  }
+
+  return json({ error: error.message ?? "Unexpected server error." }, status);
 }

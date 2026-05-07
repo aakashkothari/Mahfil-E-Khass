@@ -5,9 +5,9 @@ import { EmptyState } from "../components/ui/EmptyState";
 import { LoadingState } from "../components/ui/LoadingState";
 import { SegmentedControl } from "../components/ui/SegmentedControl";
 import { useAuth } from "../contexts/AuthContext";
+import { useInfinitePosts } from "../hooks/useInfinitePosts";
 import { FEED_SCOPES } from "../lib/constants";
 import { moodOptions } from "../lib/moods";
-import { useInfinitePosts } from "../hooks/useInfinitePosts";
 
 export function FeedPage() {
   const { loading: authLoading, user } = useAuth();
@@ -33,7 +33,7 @@ export function FeedPage() {
               Kuch alfaaz seedha dil tak jaate hain. Is hafte ki roshni unhi aawazon ke naam.
             </p>
             <Link to="/spotlight" className="mt-3 inline-block text-sm text-gold">
-              Spotlight dekhne jaiye →
+              Spotlight dekhne jaiye -&gt;
             </Link>
           </div>
         </div>
@@ -42,7 +42,7 @@ export function FeedPage() {
       <section className="mahfil-card p-5">
         <div className="flex items-start gap-4">
           <div className="mt-1 flex h-11 w-11 items-center justify-center rounded-full border border-surface-border bg-surface-elevated text-sm font-semibold text-text-main">
-            ✦
+            *
           </div>
           <div className="flex-1">
             <Link

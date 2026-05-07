@@ -1,7 +1,7 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 import { NAV_ITEMS } from "../../lib/constants";
 import { getInitials } from "../../lib/utils";
-import { useAuth } from "../../contexts/AuthContext";
 import { Button } from "../ui/Button";
 
 export function Header() {
@@ -18,7 +18,7 @@ export function Header() {
         <Link to="/" className="flex items-center gap-3">
           <img src="/diya.png" alt="Mahfil" className="h-8 w-8 object-contain" />
           <span className="font-poetry text-2xl text-text-main">
-            mah<span className="text-primary">fil ✦</span>
+            mah<span className="text-primary">fil *</span>
           </span>
         </Link>
 

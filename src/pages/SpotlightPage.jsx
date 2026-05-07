@@ -2,50 +2,79 @@ import { useEffect, useState } from "react";
 import { PostCard } from "../components/posts/PostCard";
 import { EmptyState } from "../components/ui/EmptyState";
 import { LoadingState } from "../components/ui/LoadingState";
+import { useAuth } from "../contexts/AuthContext";
 import { api } from "../lib/api";
+import { hydratePosts } from "../lib/hydratePosts";
 import { supabase } from "../lib/supabase";
 
 export function SpotlightPage() {
+  const { user } = useAuth();
   const [posts, setPosts] = useState([]);
   const [notes, setNotes] = useState({});
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     let active = true;
+
     async function load() {
       setLoading(true);
-      const { data } = await supabase
-        .from("posts")
-        .select("*, author:users!posts_author_id_fkey(*)")
-        .eq("is_spotlight", true)
-        .order("created_at", { ascending: false })
-        .limit(10);
+      setError("");
 
-      if (!active) {
-        return;
+      try {
+        const { data, error: postsError } = await supabase
+          .from("posts")
+          .select("*, author:users!posts_author_id_fkey(*)")
+          .eq("is_spotlight", true)
+          .order("created_at", { ascending: false })
+          .limit(10);
+
+        if (postsError) {
+          throw postsError;
+        }
+
+        const hydrated = await hydratePosts(data ?? [], user?.id);
+
+        if (!active) {
+          return;
+        }
+
+        setPosts(hydrated);
+      } catch (loadError) {
+        if (!active) {
+          return;
+        }
+
+        setPosts([]);
+        setError(loadError.message ?? "Spotlight load nahi hui.");
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
       }
-
-      setPosts(data ?? []);
-      setLoading(false);
     }
 
     load();
     return () => {
       active = false;
     };
-  }, []);
+  }, [user?.id]);
 
   async function fetchNote(post) {
     if (notes[post.id]) {
       return;
     }
 
-    const response = await api("ai-weekly-spotlight", {
-      method: "POST",
-      body: JSON.stringify({ text: post.content_roman }),
-    });
+    try {
+      const response = await api("ai-weekly-spotlight", {
+        method: "POST",
+        body: JSON.stringify({ text: post.content_roman }),
+      });
 
-    setNotes((current) => ({ ...current, [post.id]: response.note }));
+      setNotes((current) => ({ ...current, [post.id]: response.note }));
+    } catch (noteError) {
+      setError(noteError.message ?? "AI daad abhi nahi mil payi.");
+    }
   }
 
   return (
@@ -62,9 +91,15 @@ export function SpotlightPage() {
 
       {!loading && !posts.length ? (
         <EmptyState
-          title="Is hafte abhi spotlight tay nahi hui"
-          description="Scheduled curation chalegi, phir yahan se nayi roshni dikhegi."
+          title={error ? "Spotlight load nahi hui" : "Is hafte abhi spotlight tay nahi hui"}
+          description={error || "Scheduled curation chalegi, phir yahan se nayi roshni dikhegi."}
         />
+      ) : null}
+
+      {error && posts.length ? (
+        <div className="rounded-3xl border border-danger/20 bg-danger/10 px-5 py-4 text-sm text-danger">
+          {error}
+        </div>
       ) : null}
 
       <div className="space-y-6">

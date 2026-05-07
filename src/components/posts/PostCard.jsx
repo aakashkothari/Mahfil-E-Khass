@@ -1,9 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { api } from "../../lib/api";
-import { MOODS } from "../../lib/moods";
-import { cn, formatCount, formatRelativeTime, getInitials } from "../../lib/utils";
 import { TIERS } from "../../lib/constants";
 import { useAuth } from "../../contexts/AuthContext";
+import { MOODS } from "../../lib/moods";
+import { cn, formatCount, formatRelativeTime, getInitials } from "../../lib/utils";
 
 function TierBadge({ tier }) {
   const value = TIERS[tier] ?? TIERS.NAYA_SHAYAR;
@@ -80,6 +80,10 @@ export function PostCard({ post, onUpdate }) {
   const initialComments = useMemo(() => post.comments_preview ?? [], [post.comments_preview]);
   const [comments, setComments] = useState(initialComments);
 
+  useEffect(() => {
+    setComments(initialComments);
+  }, [initialComments, post.id]);
+
   async function toggleLike() {
     if (!user || pendingLike) {
       return;
@@ -122,7 +126,7 @@ export function PostCard({ post, onUpdate }) {
                 <TierBadge tier={author.tier} />
               </div>
               <p className="mt-1 text-xs uppercase tracking-[0.18em] text-text-soft">
-                {formatRelativeTime(post.created_at)} • {post.language}
+                {formatRelativeTime(post.created_at)} - {post.language}
               </p>
             </div>
           </div>
@@ -151,7 +155,7 @@ export function PostCard({ post, onUpdate }) {
               )}
             >
               <span className="material-symbols-outlined">
-                {post.liked_by_me ? "favorite" : "favorite"}
+                {post.liked_by_me ? "favorite" : "favorite_border"}
               </span>
               <span>{formatCount(post.likes_count)}</span>
             </button>

@@ -10,7 +10,7 @@ export async function getUserFromRequest(request) {
 
   const { data, error } = await supabaseAdmin.auth.getUser(token);
   if (error) {
-    throw error;
+    return null;
   }
 
   return data.user ?? null;
@@ -19,7 +19,9 @@ export async function getUserFromRequest(request) {
 export async function requireUser(request) {
   const user = await getUserFromRequest(request);
   if (!user) {
-    throw new Error("Authentication required.");
+    const error = new Error("Authentication required.");
+    error.status = 401;
+    throw error;
   }
   return user;
 }
